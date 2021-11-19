@@ -65,6 +65,21 @@ sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Lege, function (sprite, otherSpri
         Vaksinerte.push(Innbygger)
     }
 })
+sprites.onOverlap(SpriteKind.Vaksinert, SpriteKind.Syk_Vaksinert, function (sprite, otherSprite) {
+    TilfeldigTallSyk = randint(0, 100)
+    if (SannsynlighetSykFraVaksinert > TilfeldigTallSyk) {
+        sprite.destroy()
+        Innbygger = sprites.create(img`
+            9 9 9 9 
+            9 2 2 9 
+            9 2 2 9 
+            9 9 9 9 
+            `, SpriteKind.Syk_Vaksinert)
+        Innbygger.setPosition(otherSprite.x, otherSprite.y)
+        Vaksinerte.removeAt(Vaksinerte.indexOf(sprite))
+        Syk_Vaksinerte.push(Innbygger)
+    }
+})
 sprites.onOverlap(SpriteKind.Vaksinert, SpriteKind.Syk, function (sprite, otherSprite) {
     TilfeldigTallSyk = randint(0, 100)
     if (SannsynlighetSykVaksinert > TilfeldigTallSyk) {
@@ -106,6 +121,21 @@ sprites.onOverlap(SpriteKind.Syk, SpriteKind.Lege, function (sprite, otherSprite
         Dødsmeldte.push(Innbygger)
     }
 })
+sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Syk_Vaksinert, function (sprite, otherSprite) {
+    TilfeldigTallSyk = randint(0, 100)
+    if (SannsynlighetSykFraVaksinertFrisk > TilfeldigTallSyk) {
+        sprite.destroy()
+        Innbygger = sprites.create(img`
+            9 9 9 9 
+            9 2 2 9 
+            9 2 2 9 
+            9 9 9 9 
+            `, SpriteKind.Syk_Vaksinert)
+        Innbygger.setPosition(otherSprite.x, otherSprite.y)
+        Vaksinerte.removeAt(Vaksinerte.indexOf(sprite))
+        Syk_Vaksinerte.push(Innbygger)
+    }
+})
 sprites.onOverlap(SpriteKind.Syk_Vaksinert, SpriteKind.Lege, function (sprite, otherSprite) {
     TilfeldigTallFrisk = randint(0, 100)
     if (SannsynlighetFriskVaksinert > TilfeldigTallFrisk) {
@@ -145,6 +175,8 @@ let Vaksinerte: Sprite[] = []
 let Helsepersonell: Sprite[] = []
 let Sykemeldte: Sprite[] = []
 let Friskmeldte: Sprite[] = []
+let SannsynlighetSykFraVaksinertFrisk = 0
+let SannsynlighetSykFraVaksinert = 0
 let SannsynlighetSykVaksinert = 0
 let SannsynlighetSyk = 0
 let SannsynlighetFriskVaksinert = 0
@@ -156,6 +188,8 @@ SannsynlighetFrisk = 93
 SannsynlighetFriskVaksinert = 99
 SannsynlighetSyk = 75
 SannsynlighetSykVaksinert = 20
+SannsynlighetSykFraVaksinert = 10
+SannsynlighetSykFraVaksinertFrisk = 35
 let LegeInterval = 3
 Friskmeldte = sprites.allOfKind(SpriteKind.Frisk)
 Sykemeldte = sprites.allOfKind(SpriteKind.Syk)
