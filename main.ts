@@ -9,8 +9,8 @@ namespace SpriteKind {
     export const Død = SpriteKind.create()
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
-    let Frisk_Vaksinerte: number[] = []
-    game.splash("Friske: " + (Friskmeldte.length + Frisk_Vaksinerte.length) + "   Syke: " + (Sykemeldte.length + Syk_Vaksinerte.length), "Vaksinerte: " + Vaksinerte.length + "   Døde: " + Dødsmeldte.length)
+    game.splash("Friske: " + Friskmeldte.length + "   Syke: " + AntallSmittede, "Vaksinerte: " + Vaksinerte.length + "   Døde: " + Dødsmeldte.length)
+    game.splash("R-tallet(enkel): " + Beregne_Rtallet_Enkel, "R-tallet(vanskelig): " + Beregne_Rtallet_Vanskelig)
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (Helsepersonell.length < 10) {
@@ -35,16 +35,22 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     Sykemeldte.push(Innbygger)
 })
 sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Syk, function (sprite, otherSprite) {
-    sprite.destroy()
-    Innbygger = sprites.create(img`
-        2 2 2 2 
-        2 2 2 2 
-        2 2 2 2 
-        2 2 2 2 
-        `, SpriteKind.Syk)
-    Innbygger.setPosition(otherSprite.x, otherSprite.y)
-    Friskmeldte.removeAt(Friskmeldte.indexOf(sprite))
-    Sykemeldte.push(Innbygger)
+    TilfeldigTallSyk = randint(0, 100)
+    Inkubasjonstid = randint(2000, 6000)
+    if (SannsynlighetSyk > TilfeldigTallSyk) {
+        sprite.destroy()
+        Innbygger = sprites.create(img`
+            2 2 2 2 
+            2 2 2 2 
+            2 2 2 2 
+            2 2 2 2 
+            `, SpriteKind.Syk)
+        Innbygger.setPosition(otherSprite.x, otherSprite.y)
+        Friskmeldte.removeAt(Friskmeldte.indexOf(sprite))
+        Sykemeldte.push(Innbygger)
+        pause(Inkubasjonstid)
+    }
+    pause(Oppdatering)
 })
 sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Lege, function (sprite, otherSprite) {
     if (VaksineAktiv) {
@@ -63,7 +69,7 @@ sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Lege, function (sprite, otherSpri
 })
 sprites.onOverlap(SpriteKind.Vaksinert, SpriteKind.Syk_Vaksinert, function (sprite, otherSprite) {
     TilfeldigTallSyk = randint(0, 100)
-    Inkubasjonstid = randint(1000, 5000)
+    Inkubasjonstid = randint(2000, 6000)
     if (SannsynlighetSykFraVaksinert > TilfeldigTallSyk) {
         pause(Inkubasjonstid)
         sprite.destroy()
@@ -81,6 +87,7 @@ sprites.onOverlap(SpriteKind.Vaksinert, SpriteKind.Syk_Vaksinert, function (spri
 })
 sprites.onOverlap(SpriteKind.Vaksinert, SpriteKind.Syk, function (sprite, otherSprite) {
     TilfeldigTallSyk = randint(0, 100)
+    Inkubasjonstid = randint(2000, 6000)
     if (SannsynlighetSykVaksinert > TilfeldigTallSyk) {
         pause(Inkubasjonstid)
         sprite.destroy()
@@ -125,7 +132,7 @@ sprites.onOverlap(SpriteKind.Syk, SpriteKind.Lege, function (sprite, otherSprite
 })
 sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Syk_Vaksinert, function (sprite, otherSprite) {
     TilfeldigTallSyk = randint(0, 100)
-    Inkubasjonstid = randint(1000, 5000)
+    Inkubasjonstid = randint(2000, 6000)
     if (SannsynlighetSykFraVaksinertHvisFrisk > TilfeldigTallSyk) {
         pause(Inkubasjonstid)
         sprite.destroy()
@@ -169,12 +176,23 @@ sprites.onOverlap(SpriteKind.Syk_Vaksinert, SpriteKind.Lege, function (sprite, o
     pause(Oppdatering)
 })
 let LegeTid = 0
-let TidSidenUtbrudd = 0
+let AntallDager = 0
+let AntallSmittedeSisteUke = 0
+let AntallSmittedeForrigeUke = 0
+let AntallSmittedeSiste2Uker = 0
+let AntallSmittedeIGår = 0
+let AntallSmittedeSisteDøgn = 0
+let AntallSmittedeForrige3Dager = 0
+let AntallSmittede3DagerSiden = 0
+let AntallSmittedeSiste3Dager = 0
 let TilfeldigTallFrisk = 0
+let VaksineAktiv = false
 let Inkubasjonstid = 0
 let TilfeldigTallSyk = 0
-let VaksineAktiv = false
 let Doctor: Sprite = null
+let Beregne_Rtallet_Vanskelig = 0
+let Beregne_Rtallet_Enkel = 0
+let AntallSmittede = 0
 let Innbygger: Sprite = null
 let Dødsmeldte: Sprite[] = []
 let Syk_Vaksinerte: Sprite[] = []
@@ -185,16 +203,16 @@ let Friskmeldte: Sprite[] = []
 let SannsynlighetSykFraVaksinertHvisFrisk = 0
 let SannsynlighetSykFraVaksinert = 0
 let SannsynlighetSykVaksinert = 0
+let SannsynlighetSyk = 0
 let SannsynlighetFriskVaksinert = 0
 let SannsynlighetFrisk = 0
 let Oppdatering = 0
 let DagLengde = 3000
-let AntallDager = 0
 Oppdatering = 100
 let Vaksineutviklingstid = 10
 SannsynlighetFrisk = 93
 SannsynlighetFriskVaksinert = 99
-let SannsynlighetSyk = 75
+SannsynlighetSyk = 75
 SannsynlighetSykVaksinert = 20
 SannsynlighetSykFraVaksinert = 10
 SannsynlighetSykFraVaksinertHvisFrisk = 35
@@ -223,12 +241,34 @@ Innbygger = sprites.create(img`
     `, SpriteKind.Syk)
 Innbygger.setPosition(randint(0, 160), randint(0, 120))
 Sykemeldte.push(Innbygger)
-forever(function () {
-    if (game.runtime() > TidSidenUtbrudd + DagLengde) {
-        TidSidenUtbrudd = game.runtime()
-        AntallDager += 1
-        info.setScore(AntallDager)
+let SmittePerDøgnLISTE = [0]
+game.onUpdateInterval(DagLengde * 3, function () {
+    AntallSmittede = Sykemeldte.length + Syk_Vaksinerte.length
+    AntallSmittedeSiste3Dager = AntallSmittede - AntallSmittede3DagerSiden
+    Beregne_Rtallet_Enkel = Math.abs(Math.round(AntallSmittedeSiste3Dager / AntallSmittedeForrige3Dager * 100) / 100)
+    AntallSmittedeForrige3Dager = AntallSmittedeSiste3Dager
+    AntallSmittede3DagerSiden = AntallSmittede
+})
+game.onUpdateInterval(DagLengde, function () {
+    AntallSmittede = Sykemeldte.length + Syk_Vaksinerte.length
+    AntallSmittedeSisteDøgn = AntallSmittede - AntallSmittedeIGår
+    SmittePerDøgnLISTE.push(AntallSmittedeSisteDøgn)
+    if (SmittePerDøgnLISTE.length > 14) {
+        SmittePerDøgnLISTE.shift()
     }
+    for (let index = 0; index <= SmittePerDøgnLISTE.length - 1; index++) {
+        AntallSmittedeSiste2Uker += SmittePerDøgnLISTE[index]
+    }
+    for (let index = 0; index <= (SmittePerDøgnLISTE.length - 1) / 2; index++) {
+        AntallSmittedeForrigeUke += SmittePerDøgnLISTE[index]
+    }
+    AntallSmittedeSisteUke = AntallSmittedeSiste2Uker - AntallSmittedeForrigeUke
+    AntallSmittedeIGår = AntallSmittede
+    Beregne_Rtallet_Vanskelig = Math.abs(Math.round(AntallSmittedeSisteUke / AntallSmittedeForrigeUke * 100) / 100)
+})
+forever(function () {
+    AntallDager = game.runtime() / DagLengde
+    info.setScore(AntallDager)
     if (AntallDager > Vaksineutviklingstid) {
         VaksineAktiv = true
     }
@@ -252,24 +292,24 @@ forever(function () {
     }
 })
 game.onUpdateInterval(Oppdatering, function () {
-    for (let Innbygger of Friskmeldte) {
-        Innbygger.setPosition(Innbygger.x + randint(-2, 2), Innbygger.y + randint(-2, 2))
-        Innbygger.setStayInScreen(true)
+    for (let Innbygger2 of Friskmeldte) {
+        Innbygger2.setPosition(Innbygger2.x + randint(-2, 2), Innbygger2.y + randint(-2, 2))
+        Innbygger2.setStayInScreen(true)
     }
-    for (let Innbygger of Sykemeldte) {
-        Innbygger.setPosition(Innbygger.x + randint(-2, 2), Innbygger.y + randint(-2, 2))
-        Innbygger.setStayInScreen(true)
+    for (let Innbygger3 of Sykemeldte) {
+        Innbygger3.setPosition(Innbygger3.x + randint(-2, 2), Innbygger3.y + randint(-2, 2))
+        Innbygger3.setStayInScreen(true)
     }
-    for (let Doctor of Helsepersonell) {
-        Doctor.setPosition(Doctor.x + randint(-4, 4), Doctor.y + randint(-4, 4))
-        Doctor.setStayInScreen(true)
+    for (let Doctor2 of Helsepersonell) {
+        Doctor2.setPosition(Doctor2.x + randint(-4, 4), Doctor2.y + randint(-4, 4))
+        Doctor2.setStayInScreen(true)
     }
-    for (let Innbygger of Vaksinerte) {
-        Innbygger.setPosition(Innbygger.x + randint(-2, 2), Innbygger.y + randint(-2, 2))
-        Innbygger.setStayInScreen(true)
+    for (let Innbygger4 of Vaksinerte) {
+        Innbygger4.setPosition(Innbygger4.x + randint(-2, 2), Innbygger4.y + randint(-2, 2))
+        Innbygger4.setStayInScreen(true)
     }
-    for (let Innbygger of Syk_Vaksinerte) {
-        Innbygger.setPosition(Innbygger.x + randint(-2, 2), Innbygger.y + randint(-2, 2))
-        Innbygger.setStayInScreen(true)
+    for (let Innbygger5 of Syk_Vaksinerte) {
+        Innbygger5.setPosition(Innbygger5.x + randint(-2, 2), Innbygger5.y + randint(-2, 2))
+        Innbygger5.setStayInScreen(true)
     }
 })
