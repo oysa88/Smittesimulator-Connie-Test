@@ -38,6 +38,7 @@ sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Syk, function (sprite, otherSprit
     TilfeldigTallSyk = randint(0, 100)
     Inkubasjonstid = randint(2000, 6000)
     if (SannsynlighetSyk > TilfeldigTallSyk) {
+        pause(Inkubasjonstid)
         sprite.destroy()
         Innbygger = sprites.create(img`
             2 2 2 2 
@@ -48,7 +49,6 @@ sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Syk, function (sprite, otherSprit
         Innbygger.setPosition(otherSprite.x, otherSprite.y)
         Friskmeldte.removeAt(Friskmeldte.indexOf(sprite))
         Sykemeldte.push(Innbygger)
-        pause(Inkubasjonstid)
     }
     pause(Oppdatering)
 })
