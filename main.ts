@@ -67,6 +67,44 @@ sprites.onOverlap(SpriteKind.Frisk, SpriteKind.Lege, function (sprite, otherSpri
     }
     pause(Oppdatering)
 })
+function Mutasjoner () {
+    if (Mutasjon == 1) {
+        SannsynlighetFrisk = 93
+        SannsynlighetFriskVaksinert = 99
+        SannsynlighetSyk = 75
+        SannsynlighetSykVaksinert = 20
+        SannsynlighetSykFraVaksinert = 10
+        SannsynlighetSykFraVaksinertHvisFrisk = 35
+    } else if (Mutasjon == 2) {
+        SannsynlighetFrisk = 82
+        SannsynlighetFriskVaksinert = 95
+        SannsynlighetSyk = 75
+        SannsynlighetSykVaksinert = 20
+        SannsynlighetSykFraVaksinert = 10
+        SannsynlighetSykFraVaksinertHvisFrisk = 35
+    } else if (Mutasjon == 3) {
+        SannsynlighetFrisk = 87
+        SannsynlighetFriskVaksinert = 99
+        SannsynlighetSyk = 75
+        SannsynlighetSykVaksinert = 20
+        SannsynlighetSykFraVaksinert = 10
+        SannsynlighetSykFraVaksinertHvisFrisk = 35
+    } else if (Mutasjon == 4) {
+        SannsynlighetFrisk = 93
+        SannsynlighetFriskVaksinert = 98
+        SannsynlighetSyk = 75
+        SannsynlighetSykVaksinert = 20
+        SannsynlighetSykFraVaksinert = 10
+        SannsynlighetSykFraVaksinertHvisFrisk = 35
+    } else if (Mutasjon == 5) {
+        SannsynlighetFrisk = 93
+        SannsynlighetFriskVaksinert = 100
+        SannsynlighetSyk = 75
+        SannsynlighetSykVaksinert = 20
+        SannsynlighetSykFraVaksinert = 10
+        SannsynlighetSykFraVaksinertHvisFrisk = 35
+    }
+}
 sprites.onOverlap(SpriteKind.Vaksinert, SpriteKind.Syk_Vaksinert, function (sprite, otherSprite) {
     TilfeldigTallSyk = randint(0, 100)
     Inkubasjonstid = randint(2000, 6000)
@@ -186,13 +224,20 @@ let AntallSmittedeForrige3Dager = 0
 let AntallSmittede3DagerSiden = 0
 let AntallSmittedeSiste3Dager = 0
 let TilfeldigTallFrisk = 0
+let SannsynlighetSykFraVaksinertHvisFrisk = 0
+let SannsynlighetSykFraVaksinert = 0
+let SannsynlighetSykVaksinert = 0
+let SannsynlighetFriskVaksinert = 0
+let SannsynlighetFrisk = 0
 let VaksineAktiv = false
+let SannsynlighetSyk = 0
 let Inkubasjonstid = 0
 let TilfeldigTallSyk = 0
 let Doctor: Sprite = null
 let Beregne_Rtallet_Vanskelig = 0
 let Beregne_Rtallet_Enkel = 0
 let AntallSmittede = 0
+let Mutasjon = 0
 let Innbygger: Sprite = null
 let Dødsmeldte: Sprite[] = []
 let Syk_Vaksinerte: Sprite[] = []
@@ -200,22 +245,10 @@ let Vaksinerte: Sprite[] = []
 let Helsepersonell: Sprite[] = []
 let Sykemeldte: Sprite[] = []
 let Friskmeldte: Sprite[] = []
-let SannsynlighetSykFraVaksinertHvisFrisk = 0
-let SannsynlighetSykFraVaksinert = 0
-let SannsynlighetSykVaksinert = 0
-let SannsynlighetSyk = 0
-let SannsynlighetFriskVaksinert = 0
-let SannsynlighetFrisk = 0
 let Oppdatering = 0
 let DagLengde = 3000
 Oppdatering = 100
 let Vaksineutviklingstid = 10
-SannsynlighetFrisk = 93
-SannsynlighetFriskVaksinert = 99
-SannsynlighetSyk = 75
-SannsynlighetSykVaksinert = 20
-SannsynlighetSykFraVaksinert = 10
-SannsynlighetSykFraVaksinertHvisFrisk = 35
 let LegeInterval = 3
 Friskmeldte = sprites.allOfKind(SpriteKind.Frisk)
 Sykemeldte = sprites.allOfKind(SpriteKind.Syk)
@@ -223,6 +256,7 @@ Helsepersonell = sprites.allOfKind(SpriteKind.Lege)
 Vaksinerte = sprites.allOfKind(SpriteKind.Vaksinert)
 Syk_Vaksinerte = sprites.allOfKind(SpriteKind.Syk_Vaksinert)
 Dødsmeldte = sprites.allOfKind(SpriteKind.Død)
+let SmittePerDøgnLISTE = [0]
 for (let index = 0; index < 100; index++) {
     Innbygger = sprites.create(img`
         7 7 7 7 
@@ -241,7 +275,9 @@ Innbygger = sprites.create(img`
     `, SpriteKind.Syk)
 Innbygger.setPosition(randint(0, 160), randint(0, 120))
 Sykemeldte.push(Innbygger)
-let SmittePerDøgnLISTE = [0]
+Mutasjon = 5
+info.setLife(Mutasjon)
+Mutasjoner()
 game.onUpdateInterval(DagLengde * 3, function () {
     AntallSmittede = Sykemeldte.length + Syk_Vaksinerte.length
     AntallSmittedeSiste3Dager = AntallSmittede - AntallSmittede3DagerSiden
@@ -312,4 +348,9 @@ game.onUpdateInterval(Oppdatering, function () {
         Innbygger5.setPosition(Innbygger5.x + randint(-2, 2), Innbygger5.y + randint(-2, 2))
         Innbygger5.setStayInScreen(true)
     }
+})
+game.onUpdateInterval(DagLengde * 15, function () {
+    Mutasjon += -1
+    info.setLife(Mutasjon)
+    Mutasjoner()
 })
